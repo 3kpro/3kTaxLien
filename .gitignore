@@ -3,5 +3,3 @@ dist/
 *.zip
 .env
 .env.*
-/package-lock.json
-/tax-lien-pro/package-lock.json
