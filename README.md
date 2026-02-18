@@ -1,15 +1,17 @@
-# Tax Lien Pro — Oklahoma Investment Tracker
+# Tax Lien Pro — National Investment Tracker
 
-A React dashboard for managing tax lien investments in Oklahoma counties.
+A React dashboard for managing tax lien investments across Oklahoma and select national markets.
 
 ## Features
-- **Dashboard** — Budget tracking, ROI, pipeline summary, Oklahoma's 3-sale system overview
-- **🟢 Buy Now** — OTC certificates and county-owned properties available TODAY
-- **Properties** — Track parcels through the pipeline (Researching → Target → Won → Flipped)
-- **Glossary** — 28 tax lien terms with hover/tap tooltips throughout the app
-- **Checklist** — Phased action items from today through post-auction
+- **Dashboard** — Budget tracking, pipeline summary, and multi-state opportunities
+- **🟢 Buy Now** — OK, AZ, and FL OTC options plus county-owned properties
+- **States** — National tax lien/deed profiles with filters and platform info
+- **Online** — Auction platforms and research tools
+- **Properties** — Track parcels with state, county, and status fields
+- **Glossary** — Expanded tax lien/deed terminology
+- **Checklist** — Phased action items for OK + online states
 - **Calculator** — Min bid calculator using Oklahoma's "lesser of" rule
-- **Counties** — 7 Oklahoma counties with phone numbers, addresses, and links
+- **OK Counties** — Oklahoma county directory with contact info
 
 ## Quick Start
 

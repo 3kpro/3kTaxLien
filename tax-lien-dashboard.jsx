@@ -52,7 +52,7 @@ const glossary = [
 
 /* ─── LETTER TEMPLATES ─── */
 const letterTemplates = [
-  { name: "Yellow Letter — First Contact", type: "letter", content: `Dear [OWNER NAME]
+  { name: "Yellow Letter — First Contact", type: "letter", content: `Dear [OWNER NAME],
 
 My name is Carlos and I'm a local real estate investor here in the Tulsa area.
 
@@ -68,7 +68,7 @@ Sincerely,
 Carlos
 [YOUR PHONE]
 [YOUR EMAIL]` },
-  { name: "Follow-Up Letter (10 days)", type: "letter", content: `Dear [OWNER NAME]
+  { name: "Follow-Up Letter (10 days)", type: "letter", content: `Dear [OWNER NAME],
 
 I reached out about a week ago regarding your property at [ADDRESS]. I know you're busy, so I wanted to follow up one more time.
 
@@ -248,8 +248,6 @@ export default function TaxLienDashboard() {
   const [editLeadId, setEditLeadId] = useState(null);
   const [editBuyerId, setEditBuyerId] = useState(null);
   const [showTemplate, setShowTemplate] = useState(null);
-  const [calc, setCalc] = useState({ bt: 1200, fe: 300, av: 15000, mv: 25000, ol: 0 });
-  const [wsCalc, setWsCalc] = useState({ taxes: 1200, sellerPayout: 800, repairCost: 3000, arv: 25000, assignFee: 1500 });
 
   const ef = { parcelId: "", address: "", county: "Tulsa County", assessedValue: "", minBid: "", estimatedValue: "", status: "Researching", risk: "Medium", notes: "", liens: "", zoning: "", acreage: "", type: "Resale", state: "OK" };
   const [form, setForm] = useState(ef);
@@ -351,9 +349,9 @@ export default function TaxLienDashboard() {
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
       <div style={S.cd}><div style={S.ct2}>Key Dates</div>
-        {["OTC / Commissioner / Wholesale", "AZ/FL OTC Liens", "OK June Resale", "OK October Sale"].map((l, i) => (
+        {[["OTC / Commissioner / Wholesale", null, true], ["AZ/FL OTC Liens", null, true], ["OK June Resale", `${dJune}d`], ["OK October Sale", `${dOct}d`]].map(([l, d, n]) => (
           <div key={l} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-            <span style={{ fontSize: 11 }}>{l}</span>{i < 2 ? <span style={S.nw}>NOW</span> : <span style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700 }}>{i === 2 ? `${dJune}d` : `${dOct}d`}</span>}
+            <span style={{ fontSize: 11 }}>{l}</span>{n ? <span style={S.nw}>NOW</span> : <span style={{ fontSize: 11, color: "#f59e0b", fontWeight: 700 }}>{d}</span>}
           </div>))}
       </div>
       <div style={S.cd}><div style={S.ct2}>Quick Links</div><div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -374,12 +372,6 @@ export default function TaxLienDashboard() {
     const leads = data.leads || [];
     const buyers = data.buyers || [];
     const stg = wsSubTab;
-    const totalOffer = wsCalc.taxes + wsCalc.sellerPayout;
-    const investorAllIn = totalOffer + wsCalc.repairCost + wsCalc.assignFee;
-    const investorProfit = wsCalc.arv - investorAllIn;
-    const investorROI = investorAllIn > 0 ? ((investorProfit / investorAllIn) * 100).toFixed(0) : 0;
-    const maxOffer = wsCalc.arv * 0.7 - wsCalc.repairCost - wsCalc.assignFee;
-    const seventyRule = wsCalc.arv * 0.7;
     return (<>
       {/* Sub-navigation */}
       <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
@@ -546,36 +538,45 @@ export default function TaxLienDashboard() {
       </>)}
 
       {/* WHOLESALE DEAL CALC */}
-      {stg === "wscalc" && (<>
-        <div style={S.cd}><div style={S.ct2}>Wholesale Deal Calculator</div>
-          <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 12, lineHeight: 1.6 }}>The 70% Rule: Never offer more than 70% of <Tip term="ARV (After Repair Value)">ARV</Tip> minus repairs minus your fee. If the numbers work for your buyer, they work for you.</div>
-          <div style={S.fg}>
-            <div><div style={S.lb}>Back Taxes Owed</div><input style={S.ip} type="number" value={wsCalc.taxes} onChange={e => setWsCalc({ ...wsCalc, taxes: +e.target.value || 0 })} /></div>
-            <div><div style={S.lb}>Seller Cash Payout</div><input style={S.ip} type="number" value={wsCalc.sellerPayout} onChange={e => setWsCalc({ ...wsCalc, sellerPayout: +e.target.value || 0 })} /></div>
-            <div><div style={S.lb}>Est. Repair Cost</div><input style={S.ip} type="number" value={wsCalc.repairCost} onChange={e => setWsCalc({ ...wsCalc, repairCost: +e.target.value || 0 })} /></div>
-            <div><div style={S.lb}><Tip term="ARV (After Repair Value)">ARV</Tip></div><input style={S.ip} type="number" value={wsCalc.arv} onChange={e => setWsCalc({ ...wsCalc, arv: +e.target.value || 0 })} /></div>
-            <div><div style={S.lb}>Your <Tip term="Assignment Fee">Assignment Fee</Tip></div><input style={S.ip} type="number" value={wsCalc.assignFee} onChange={e => setWsCalc({ ...wsCalc, assignFee: +e.target.value || 0 })} /></div>
-          </div>
-        </div>
-        <div style={{ ...S.g, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
-          <div style={S.sc("#e6a919")}><div style={S.ac("#e6a919")} /><div style={S.lb}>Your Offer to Seller</div><div style={S.vl("#e6a919")}>{fmt(totalOffer)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>Taxes + cash to owner</div></div>
-          <div style={S.sc("#4ade80")}><div style={S.ac("#4ade80")} /><div style={S.lb}>Your Fee</div><div style={S.vl("#4ade80")}>{fmt(wsCalc.assignFee)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>$0 capital required</div></div>
-          <div style={S.sc("#60a5fa")}><div style={S.ac("#60a5fa")} /><div style={S.lb}>Investor All-In</div><div style={S.vl("#60a5fa")}>{fmt(investorAllIn)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>Offer + repairs + fee</div></div>
-          <div style={S.sc(investorProfit > 0 ? "#4ade80" : "#ef4444")}><div style={S.ac(investorProfit > 0 ? "#4ade80" : "#ef4444")} /><div style={S.lb}>Investor Profit</div><div style={S.vl(investorProfit > 0 ? "#4ade80" : "#ef4444")}>{fmt(investorProfit)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>ROI: {investorROI}%</div></div>
-        </div>
-        <div style={S.cd}>
-          <div style={S.ct2}>70% Rule Check</div>
-          <div style={{ display: "grid", gap: 6, fontSize: 12 }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#6b7280" }}>ARV × 70%</span><span style={{ fontWeight: 700 }}>{fmt(seventyRule)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#6b7280" }}>− Repairs</span><span style={{ fontWeight: 700 }}>− {fmt(wsCalc.repairCost)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#6b7280" }}>− Your Fee</span><span style={{ fontWeight: 700 }}>− {fmt(wsCalc.assignFee)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 8 }}><span style={{ color: "#e6a919", fontWeight: 700 }}>MAX Offer to Seller</span><span style={{ fontWeight: 900, color: maxOffer > 0 ? "#4ade80" : "#ef4444", fontSize: 16 }}>{fmt(maxOffer)}</span></div>
-            <div style={{ fontSize: 11, color: totalOffer <= maxOffer ? "#4ade80" : "#ef4444", fontWeight: 700, marginTop: 4, padding: 8, background: totalOffer <= maxOffer ? "rgba(74,222,128,0.1)" : "rgba(239,68,68,0.1)", borderRadius: 6, textAlign: "center" }}>
-              {totalOffer <= maxOffer ? `✅ DEAL WORKS — your ${fmt(totalOffer)} offer is ${fmt(maxOffer - totalOffer)} under max` : `❌ OVER MAX — reduce offer by ${fmt(totalOffer - maxOffer)} or find cheaper property`}
+      {stg === "wscalc" && (() => {
+        const [c, sC] = useState({ taxes: 1200, sellerPayout: 800, repairCost: 3000, arv: 25000, assignFee: 1500 });
+        const totalOffer = c.taxes + c.sellerPayout;
+        const investorAllIn = totalOffer + c.repairCost + c.assignFee;
+        const investorProfit = c.arv - investorAllIn;
+        const investorROI = investorAllIn > 0 ? ((investorProfit / investorAllIn) * 100).toFixed(0) : 0;
+        const maxOffer = c.arv * 0.7 - c.repairCost - c.assignFee;
+        const seventyRule = c.arv * 0.7;
+        return (<>
+          <div style={S.cd}><div style={S.ct2}>Wholesale Deal Calculator</div>
+            <div style={{ fontSize: 11, color: "#6b7280", marginBottom: 12, lineHeight: 1.6 }}>The 70% Rule: Never offer more than 70% of <Tip term="ARV (After Repair Value)">ARV</Tip> minus repairs minus your fee. If the numbers work for your buyer, they work for you.</div>
+            <div style={S.fg}>
+              <div><div style={S.lb}>Back Taxes Owed</div><input style={S.ip} type="number" value={c.taxes} onChange={e => sC({ ...c, taxes: +e.target.value || 0 })} /></div>
+              <div><div style={S.lb}>Seller Cash Payout</div><input style={S.ip} type="number" value={c.sellerPayout} onChange={e => sC({ ...c, sellerPayout: +e.target.value || 0 })} /></div>
+              <div><div style={S.lb}>Est. Repair Cost</div><input style={S.ip} type="number" value={c.repairCost} onChange={e => sC({ ...c, repairCost: +e.target.value || 0 })} /></div>
+              <div><div style={S.lb}><Tip term="ARV (After Repair Value)">ARV</Tip></div><input style={S.ip} type="number" value={c.arv} onChange={e => sC({ ...c, arv: +e.target.value || 0 })} /></div>
+              <div><div style={S.lb}>Your <Tip term="Assignment Fee">Assignment Fee</Tip></div><input style={S.ip} type="number" value={c.assignFee} onChange={e => sC({ ...c, assignFee: +e.target.value || 0 })} /></div>
             </div>
           </div>
-        </div>
-      </>)}
+          <div style={{ ...S.g, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}>
+            <div style={S.sc("#e6a919")}><div style={S.ac("#e6a919")} /><div style={S.lb}>Your Offer to Seller</div><div style={S.vl("#e6a919")}>{fmt(totalOffer)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>Taxes + cash to owner</div></div>
+            <div style={S.sc("#4ade80")}><div style={S.ac("#4ade80")} /><div style={S.lb}>Your Fee</div><div style={S.vl("#4ade80")}>{fmt(c.assignFee)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>$0 capital required</div></div>
+            <div style={S.sc("#60a5fa")}><div style={S.ac("#60a5fa")} /><div style={S.lb}>Investor All-In</div><div style={S.vl("#60a5fa")}>{fmt(investorAllIn)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>Offer + repairs + fee</div></div>
+            <div style={S.sc(investorProfit > 0 ? "#4ade80" : "#ef4444")}><div style={S.ac(investorProfit > 0 ? "#4ade80" : "#ef4444")} /><div style={S.lb}>Investor Profit</div><div style={S.vl(investorProfit > 0 ? "#4ade80" : "#ef4444")}>{fmt(investorProfit)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>ROI: {investorROI}%</div></div>
+          </div>
+          <div style={S.cd}>
+            <div style={S.ct2}>70% Rule Check</div>
+            <div style={{ display: "grid", gap: 6, fontSize: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#6b7280" }}>ARV × 70%</span><span style={{ fontWeight: 700 }}>{fmt(seventyRule)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#6b7280" }}>− Repairs</span><span style={{ fontWeight: 700 }}>− {fmt(c.repairCost)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "#6b7280" }}>− Your Fee</span><span style={{ fontWeight: 700 }}>− {fmt(c.assignFee)}</span></div>
+              <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 8 }}><span style={{ color: "#e6a919", fontWeight: 700 }}>MAX Offer to Seller</span><span style={{ fontWeight: 900, color: maxOffer > 0 ? "#4ade80" : "#ef4444", fontSize: 16 }}>{fmt(maxOffer)}</span></div>
+              <div style={{ fontSize: 11, color: totalOffer <= maxOffer ? "#4ade80" : "#ef4444", fontWeight: 700, marginTop: 4, padding: 8, background: totalOffer <= maxOffer ? "rgba(74,222,128,0.1)" : "rgba(239,68,68,0.1)", borderRadius: 6, textAlign: "center" }}>
+                {totalOffer <= maxOffer ? `✅ DEAL WORKS — your ${fmt(totalOffer)} offer is ${fmt(maxOffer - totalOffer)} under max` : `❌ OVER MAX — reduce offer by ${fmt(totalOffer - maxOffer)} or find cheaper property`}
+              </div>
+            </div>
+          </div>
+        </>);
+      })()}
     </>);
   };
 
@@ -627,8 +628,8 @@ export default function TaxLienDashboard() {
   const rCheck = () => { const tot = clItems.reduce((s, p) => s + p.items.length, 0), dn = Object.values(cl).filter(Boolean).length; return (<><div style={S.cd}><div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}><span style={S.ct2}>Progress</span><span style={{ fontSize: 14, fontWeight: 700, color: "#e6a919" }}>{dn}/{tot}</span></div><div style={S.pb}><div style={S.pf((dn / tot) * 100, "#e6a919")} /></div></div>
     {clItems.map(ph => <div key={ph.p} style={S.cd}><div style={S.ct2}>{ph.i} {ph.p}</div>{ph.items.map(it => <div key={it.k} style={S.ck} onClick={() => togCl(it.k)}><div style={S.cb(cl[it.k])}>{cl[it.k] && <span style={{ color: "#0a0a0f", fontSize: 12, fontWeight: 900 }}>✓</span>}</div><span style={{ fontSize: 11, color: cl[it.k] ? "#6b7280" : "#c9d1d9", textDecoration: cl[it.k] ? "line-through" : "none" }}>{it.t}</span></div>)}</div>)}</>); };
 
-  const rCalc = () => { const tc = calc.bt + calc.fe + calc.ol, m23 = (calc.av * 2) / 3, lm = Math.min(m23, tc), pr = calc.mv - lm, ro = lm > 0 ? ((pr / lm) * 100).toFixed(0) : 0;
-    return (<><div style={S.cd}><div style={S.ct2}>Auction Deal Calculator (OK June Resale)</div><div style={S.fg}><div><div style={S.lb}>Back Taxes</div><input style={S.ip} type="number" value={calc.bt} onChange={e => setCalc({ ...calc, bt: +e.target.value || 0 })} /></div><div><div style={S.lb}>Fees</div><input style={S.ip} type="number" value={calc.fe} onChange={e => setCalc({ ...calc, fe: +e.target.value || 0 })} /></div><div><div style={S.lb}>Assessed Value</div><input style={S.ip} type="number" value={calc.av} onChange={e => setCalc({ ...calc, av: +e.target.value || 0 })} /></div><div><div style={S.lb}>Market Value</div><input style={S.ip} type="number" value={calc.mv} onChange={e => setCalc({ ...calc, mv: +e.target.value || 0 })} /></div></div></div>
+  const rCalc = () => { const [c, sC] = useState({ bt: 1200, fe: 300, av: 15000, mv: 25000, ol: 0 }); const tc = c.bt + c.fe + c.ol, m23 = (c.av * 2) / 3, lm = Math.min(m23, tc), pr = c.mv - lm, ro = lm > 0 ? ((pr / lm) * 100).toFixed(0) : 0;
+    return (<><div style={S.cd}><div style={S.ct2}>Auction Deal Calculator (OK June Resale)</div><div style={S.fg}><div><div style={S.lb}>Back Taxes</div><input style={S.ip} type="number" value={c.bt} onChange={e => sC({ ...c, bt: +e.target.value || 0 })} /></div><div><div style={S.lb}>Fees</div><input style={S.ip} type="number" value={c.fe} onChange={e => sC({ ...c, fe: +e.target.value || 0 })} /></div><div><div style={S.lb}>Assessed Value</div><input style={S.ip} type="number" value={c.av} onChange={e => sC({ ...c, av: +e.target.value || 0 })} /></div><div><div style={S.lb}>Market Value</div><input style={S.ip} type="number" value={c.mv} onChange={e => sC({ ...c, mv: +e.target.value || 0 })} /></div></div></div>
     <div style={{ ...S.g, gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))" }}><div style={S.sc("#e6a919")}><div style={S.ac("#e6a919")} /><div style={S.lb}>2/3 Assessed</div><div style={S.vl("#e6a919")}>{fmt(m23)}</div></div><div style={S.sc("#60a5fa")}><div style={S.ac("#60a5fa")} /><div style={S.lb}>Taxes+Fees</div><div style={S.vl("#60a5fa")}>{fmt(tc)}</div></div><div style={S.sc("#f59e0b")}><div style={S.ac("#f59e0b")} /><div style={S.lb}>Min Bid</div><div style={S.vl("#f59e0b")}>{fmt(lm)}</div></div><div style={S.sc(pr > 0 ? "#4ade80" : "#ef4444")}><div style={S.ac(pr > 0 ? "#4ade80" : "#ef4444")} /><div style={S.lb}>Profit</div><div style={S.vl(pr > 0 ? "#4ade80" : "#ef4444")}>{fmt(pr)}</div><div style={{ fontSize: 10, color: "#6b7280" }}>ROI: {ro}%</div></div></div></>); };
 
   const rCty = () => (<><div style={S.cd}><div style={S.ct2}>Oklahoma County Directory</div></div><div style={{ display: "grid", gap: 8 }}>{counties.map(c => <div key={c.name} style={{ ...S.cd, marginBottom: 0 }}><div style={{ fontWeight: 700, fontSize: 13, color: "#e6a919" }}>{c.name}</div><div style={{ fontSize: 10, color: "#6b7280", marginBottom: 4 }}>{c.addr}</div><div style={{ fontSize: 11 }}>📞 <a href={`tel:${c.phone.replace(/-/g, "")}`} style={S.lk}>{c.phone}</a>{c.delinqPhone !== c.phone && <span> · Delinquent: <a href={`tel:${c.delinqPhone.replace(/-/g, "")}`} style={S.lk}>{c.delinqPhone}</a></span>}</div>{c.website && <a href={`https://${c.website}`} target="_blank" rel="noopener noreferrer" style={{ ...S.lk, fontSize: 10 }}>{c.website}</a>}</div>)}</div></>);
